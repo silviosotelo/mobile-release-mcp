@@ -48,7 +48,7 @@ Register it in your MCP client (e.g. Claude Code `~/.claude.json` or `.mcp.json`
 
 Then put a `mobile-release.config.json` in your project (copy `examples/mobile-release.config.example.json`). Credentials (`.p8`, Play JSON, keystore) live **outside** the repo.
 
-## Tools (50)
+## Tools (57)
 
 **Diagnostics & setup**
 - `doctor` — validate the host (flutter, shorebird, fastlane, CocoaPods, xcrun, locale, credentials), local or over SSH.
@@ -73,6 +73,8 @@ Then put a `mobile-release.config.json` in your project (copy `examples/mobile-r
 **Signing & assets** — `match` (team code signing), `dsym_upload_crashlytics`, `snapshot`, `frameit`, `screengrab`.
 
 **Versioning** — `version_set` (flutter/node/expo/android/ios), `git_tag`.
+
+**Codegen / assets / extras** — `flutter_build_runner`, `flutter_gen_icons`, `flutter_gen_splash`, `js_lint` (ESLint), `js_format` (Prettier), `codepush_release` (RN OTA via AppCenter), `android_keystore_create`.
 
 > Validated end-to-end against a real macOS host over SSH: `doctor`, `store_status` (App Store Connect + Google Play). The rest follow the same execution model.
 

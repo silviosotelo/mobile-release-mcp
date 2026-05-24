@@ -14,6 +14,7 @@ import { registerSigning } from "./tools/signing.js";
 import { registerScreenshots } from "./tools/screenshots.js";
 import { registerSetup } from "./tools/setup.js";
 import { registerVersion } from "./tools/version.js";
+import { registerExtras } from "./tools/extras.js";
 
 const server = new McpServer({
   name: "mobile-release-mcp",
@@ -33,6 +34,7 @@ registerSigning(server);
 registerScreenshots(server);
 registerSetup(server);
 registerVersion(server);
+registerExtras(server);
 
 const transport = new StdioServerTransport();
 await server.connect(transport);
