@@ -1,0 +1,37 @@
+{
+  "projectDir": "/Users/you/path/to/your-flutter-app",
+  "remote": { "ssh": "mac" },
+  "env": {
+    "pathPrepend": [
+      "/usr/local/bin",
+      "/Users/you/.gem/ruby/3.3.6/bin",
+      "/Users/you/.shorebird/bin"
+    ],
+    "lang": "en_US.UTF-8"
+  },
+  "ios": {
+    "bundleId": "com.example.app",
+    "appStoreConnect": {
+      "keyId": "XXXXXXXXXX",
+      "issuerId": "00000000-0000-0000-0000-000000000000",
+      "keyPath": "~/keys/AuthKey_XXXXXXXXXX.p8"
+    },
+    "appStoreCountry": "us",
+    "keychain": {
+      "path": "~/Library/Keychains/login.keychain-db",
+      "password": "<login-keychain-password>"
+    }
+  },
+  "android": {
+    "packageName": "com.example.app",
+    "playServiceAccountJson": "~/keys/play-service-account.json"
+  },
+  "shorebird": {
+    "enabled": true,
+    "noTreeShakeIcons": true
+  },
+  "match": {
+    "gitUrl": "git@github.com:you/certificates.git",
+    "type": "appstore"
+  }
+}

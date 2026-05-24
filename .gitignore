@@ -1,0 +1,14 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+
+# Never commit real per-project configs (contain key paths / secrets)
+mobile-release.config.json
+*.config.local.json
+
+# Credentials must live outside the repo
+*.p8
+*.jks
+*.keystore
+*-service-account.json
