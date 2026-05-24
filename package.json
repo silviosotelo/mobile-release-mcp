@@ -5,6 +5,10 @@
   "license": "MIT",
   "author": "Silvio Sotelo",
   "type": "module",
+  "repository": { "type": "git", "url": "git+https://github.com/silviosotelo/mobile-release-mcp.git" },
+  "homepage": "https://github.com/silviosotelo/mobile-release-mcp#readme",
+  "bugs": { "url": "https://github.com/silviosotelo/mobile-release-mcp/issues" },
+  "publishConfig": { "access": "public" },
   "bin": {
     "mobile-release-mcp": "dist/index.js"
   },

@@ -1,6 +1,8 @@
 <p align="center"><b>mobile-release-mcp</b></p>
 
 <p align="center">
+  <a href="https://github.com/silviosotelo/mobile-release-mcp/actions/workflows/ci.yml"><img src="https://github.com/silviosotelo/mobile-release-mcp/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://www.npmjs.com/package/mobile-release-mcp"><img src="https://img.shields.io/npm/v/mobile-release-mcp.svg" alt="npm"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT"></a>
   <img src="https://img.shields.io/badge/platform-macOS-blue.svg" alt="macOS">
   <img src="https://img.shields.io/badge/MCP-server-purple.svg" alt="MCP">
