@@ -1,0 +1,20 @@
+{
+  "projectDir": "/Users/you/apps/my-flutter-app",
+  "env": {
+    "pathPrepend": ["/usr/local/bin", "/Users/you/.shorebird/bin"],
+    "lang": "en_US.UTF-8"
+  },
+  "ios": {
+    "bundleId": "com.example.app",
+    "appStoreConnect": {
+      "keyId": "XXXXXXXXXX",
+      "issuerId": "00000000-0000-0000-0000-000000000000",
+      "keyPath": "~/keys/AuthKey_XXXXXXXXXX.p8"
+    }
+  },
+  "android": {
+    "packageName": "com.example.app",
+    "playServiceAccountJson": "~/keys/play-service-account.json"
+  },
+  "shorebird": { "enabled": true, "noTreeShakeIcons": true }
+}

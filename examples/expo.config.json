@@ -1,0 +1,6 @@
+{
+  "projectDir": "/Users/you/apps/my-expo-app",
+  "env": { "lang": "en_US.UTF-8" },
+  "ios": { "bundleId": "com.example.app" },
+  "android": { "packageName": "com.example.app" }
+}
