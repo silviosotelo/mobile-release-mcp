@@ -48,21 +48,33 @@ Register it in your MCP client (e.g. Claude Code `~/.claude.json` or `.mcp.json`
 
 Then put a `mobile-release.config.json` in your project (copy `examples/mobile-release.config.example.json`). Credentials (`.p8`, Play JSON, keystore) live **outside** the repo.
 
-## Tools
+## Tools (50)
 
-| Tool | Status | What it does |
-|------|--------|--------------|
-| `doctor` | ✅ | Validates the build host: flutter, shorebird, fastlane, CocoaPods, locale, credentials. Local or over SSH. |
-| `shorebird_release` | ✅ | New Shorebird release (binary). Builds with `--no-tree-shake-icons`; unlocks keychain for iOS codesign. |
-| `shorebird_patch` | ✅ | OTA patch (Dart-only) over a release. Detects & explains `UnpatchableChangeException`. |
-| `store_status` | 🔜 | App Store review state + Google Play track state. |
-| `check_store_version` | 🔜 | Latest store version vs installed (store-update detection). |
-| `release_ios` | 🔜 | Create version, set release notes, attach build, submit (handles train-closed, in-review replacement, export compliance). |
-| `release_android` | 🔜 | Upload AAB to a Play track (versionCode checks). |
-| `beta_ios` / `beta_android` | 🔜 | TestFlight / Play internal testing. |
-| `match` | 🔜 | Team code signing via fastlane match. |
-| `snapshot` | 🔜 | Automated screenshots via fastlane snapshot. |
-| `setup` | 🔜 | Scaffold Appfile/Fastfile from your Xcode/Gradle project. |
+**Diagnostics & setup**
+- `doctor` — validate the host (flutter, shorebird, fastlane, CocoaPods, xcrun, locale, credentials), local or over SSH.
+- `setup_fastlane` — scaffold `fastlane/Appfile` + `Fastfile` (ios/android beta+release lanes) from your config.
+
+**Flutter** — `flutter_build` (apk/aab/ios/ipa/web/macos), `flutter_test`, `flutter_analyze`, `flutter_pub`, `flutter_clean`, `flutter_format`, `flutter_gen_l10n`, `flutter_doctor`.
+
+**React Native** — `rn_pod_install`, `rn_build_android`, `rn_build_ios`, `rn_bundle`, `rn_test`, `rn_doctor`, `rn_clean`.
+
+**Expo** — `expo_eas_build`, `expo_eas_submit`, `expo_eas_update` (OTA), `expo_prebuild`, `expo_install`, `expo_doctor`.
+
+**Native iOS / Swift** — `ios_xcodebuild` (build/test/archive/clean), `ios_export_ipa`, `ios_pod_install`, `swift_build`, `swift_test`.
+
+**Native Android** — `android_gradle`, `android_build` (apk/aab), `android_test`, `android_lint`, `android_adb`.
+
+**Devices / simulators** — `devices_list`, `ios_simulator` (boot/install/launch/terminate/screenshot).
+
+**Shorebird (OTA)** — `shorebird_release` (with `--no-tree-shake-icons`), `shorebird_patch` (detects `UnpatchableChangeException`).
+
+**Stores** — `store_status`, `check_store_version`, `beta_ios` (TestFlight), `release_ios` (create version + notes + attach build + submit; handles in-review replacement / rename), `beta_android` (Play internal), `release_android` (Play track).
+
+**Signing & assets** — `match` (team code signing), `dsym_upload_crashlytics`, `snapshot`, `frameit`, `screengrab`.
+
+**Versioning** — `version_set` (flutter/node/expo/android/ios), `git_tag`.
+
+> Validated end-to-end against a real macOS host over SSH: `doctor`, `store_status` (App Store Connect + Google Play). The rest follow the same execution model.
 
 ## Config reference
 

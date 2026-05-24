@@ -55,7 +55,7 @@ export function composeScript(command: string, host: ExecHost): string {
 export function run(
   command: string,
   host: ExecHost = {},
-  opts: { timeoutMs?: number } = {}
+  opts: { timeoutMs?: number; stdin?: string } = {}
 ): Promise<ExecResult> {
   const inner = composeScript(command, host);
   const file = host.ssh ? "ssh" : "bash";
@@ -64,6 +64,10 @@ export function run(
 
   return new Promise<ExecResult>((resolve) => {
     const child = spawn(file, args, { windowsHide: true });
+    if (opts.stdin !== undefined) {
+      child.stdin.write(opts.stdin);
+      child.stdin.end();
+    }
     let stdout = "";
     let stderr = "";
     let timer: NodeJS.Timeout | undefined;
@@ -90,4 +94,22 @@ export function run(
 export function tail(s: string, max = 4000): string {
   if (s.length <= max) return s;
   return "…(truncado)\n" + s.slice(s.length - max);
+}
+
+/**
+ * Write a helper script (ruby/python/bash) to the host's /tmp via stdin and
+ * run it. Works for both local and SSH hosts (the script never touches the
+ * controlling machine's filesystem). `args` is appended raw to the interpreter
+ * invocation, so quote values that need it.
+ */
+export function runScript(
+  interpreter: "ruby" | "python3" | "bash",
+  scriptContent: string,
+  host: ExecHost = {},
+  opts: { args?: string; timeoutMs?: number } = {}
+): Promise<ExecResult> {
+  const ext = interpreter === "ruby" ? "rb" : interpreter === "python3" ? "py" : "sh";
+  const tmp = `/tmp/mr_${Date.now()}_${Math.floor(Math.random() * 1e6)}.${ext}`;
+  const cmd = `cat > ${tmp} && ${interpreter} ${tmp} ${opts.args ?? ""}; rc=$?; rm -f ${tmp}; exit $rc`;
+  return run(cmd, host, { stdin: scriptContent, timeoutMs: opts.timeoutMs });
 }
