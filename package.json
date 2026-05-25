@@ -1,6 +1,6 @@
 {
   "name": "mobile-release-mcp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "MCP server for mobile release automation: fastlane (match, snapshot, beta, release), Shorebird OTA, App Store Connect & Google Play — for Flutter / iOS / Android projects.",
   "license": "MIT",
   "author": "Silvio Sotelo",

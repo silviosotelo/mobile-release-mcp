@@ -10,7 +10,7 @@
 
 An **MCP server** that lets an AI agent (Claude Code, Cursor, …) build, test and **ship mobile apps** in plain language — for **Flutter, React Native, Expo, native iOS/Swift and native Android**.
 
-It wraps the tools you already use — `flutter`, `gradle`, `xcodebuild`, `fastlane`, `shorebird`, `eas`, `adb`, App Store Connect & Google Play APIs — into **57 MCP tools**, and bakes in the production gotchas (keychain unlock for SSH codesign, CocoaPods `PATH`, Shorebird icon tree-shaking, App Store version rules, …).
+It wraps the tools you already use — `flutter`, `gradle`, `xcodebuild`, `fastlane`, `shorebird`, `eas`, `adb`, App Store Connect & Google Play APIs — into **59 MCP tools**, and bakes in the production gotchas (keychain unlock for SSH codesign, CocoaPods `PATH`, Shorebird icon tree-shaking, App Store version rules, …). For any fastlane action without a dedicated tool, use the generic `fastlane_run`.
 
 > **You don't call the tools by hand.** You tell your agent *"build the Android release and upload it to the Play internal track"* and it picks the right tool with the right arguments, reading everything else from your config file.
 
@@ -121,7 +121,9 @@ Each project gets one `mobile-release.config.json`. Every tool accepts an option
     "keychain": {                              // only needed for codesign over SSH
       "path": "~/Library/Keychains/login.keychain-db",
       "password": "<your-mac-login-password>"
-    }
+    },
+    "scheme": "Runner",                        // defaults for ios_build_app (gym)
+    "workspace": "ios/Runner.xcworkspace"      // or "xcodeProject": "ios/Runner.xcodeproj"
   },
 
   // OPTIONAL — Android / Google Play
@@ -151,6 +153,7 @@ Each project gets one `mobile-release.config.json`. Every tool accepts an option
 - **`env.pathPrepend`** — the #1 cause of "command not found" / "CocoaPods not installed". Add the dirs where `pod`, your gems, `flutter` and `shorebird` live. Find them on the host with `which pod flutter shorebird`.
 - **`ios.appStoreConnect`** — needed for `store_status`, `beta_ios`, `release_ios`, `check_store_version`. See [Getting credentials](#getting-credentials).
 - **`ios.keychain`** — only if you build/sign iOS over SSH (the login keychain is locked in non-interactive sessions). Holds your macOS login password so `codesign` can use the signing key.
+- **`ios.scheme` / `ios.workspace` / `ios.xcodeProject`** — defaults for `ios_build_app` (fastlane gym). Any of them can be overridden per call.
 - **`android.playServiceAccountJson`** — needed for `store_status`, `release_android`, `beta_android`.
 - **`shorebird`** — for `shorebird_release` / `shorebird_patch`.
 - **`match`** — for the `match` tool.
@@ -228,7 +231,9 @@ Talk to your agent naturally; it maps to tools:
 | "Build the Android app bundle in release" | `flutter_build` (or `android_build`) |
 | "Cut a Shorebird release for iOS" | `shorebird_release` |
 | "Ship this Dart fix over the air to 1.4.0+30" | `shorebird_patch` |
-| "Upload the IPA to TestFlight" | `beta_ios` |
+| "Build & export a signed IPA" | `ios_build_app` (fastlane gym) |
+| "Upload the IPA to TestFlight" | `beta_ios` (fastlane pilot) |
+| "Run a fastlane action I don't have a tool for" | `fastlane_run` |
 | "Submit version 1.4.0 build 30 to the App Store" | `release_ios` |
 | "Push the AAB to the Play internal track" | `beta_android` |
 | "Is my new version approved yet?" | `store_status` |
@@ -243,13 +248,13 @@ Talk to your agent naturally; it maps to tools:
 **Flutter** — `flutter_build`, `flutter_test`, `flutter_analyze`, `flutter_pub`, `flutter_clean`, `flutter_format`, `flutter_gen_l10n`, `flutter_doctor`, `flutter_build_runner`, `flutter_gen_icons`, `flutter_gen_splash`
 **React Native** — `rn_pod_install`, `rn_build_android`, `rn_build_ios`, `rn_bundle`, `rn_test`, `rn_doctor`, `rn_clean`
 **Expo** — `expo_eas_build`, `expo_eas_submit`, `expo_eas_update`, `expo_prebuild`, `expo_install`, `expo_doctor`
-**Native iOS / Swift** — `ios_xcodebuild`, `ios_export_ipa`, `ios_pod_install`, `swift_build`, `swift_test`
+**Native iOS / Swift** — `ios_xcodebuild`, `ios_export_ipa`, `ios_build_app` (fastlane gym), `ios_pod_install`, `swift_build`, `swift_test`
 **Native Android** — `android_gradle`, `android_build`, `android_test`, `android_lint`, `android_adb`
 **Devices** — `devices_list`, `ios_simulator`
 **Shorebird (OTA)** — `shorebird_release`, `shorebird_patch`
 **Stores** — `store_status`, `check_store_version`, `beta_ios`, `release_ios`, `beta_android`, `release_android`
 **Signing & assets** — `match`, `dsym_upload_crashlytics`, `snapshot`, `frameit`, `screengrab`
-**Versioning & extras** — `version_set`, `git_tag`, `js_lint`, `js_format`, `codepush_release`, `android_keystore_create`
+**Versioning & extras** — `version_set`, `git_tag`, `js_lint`, `js_format`, `codepush_release`, `android_keystore_create`, `fastlane_run` (any fastlane action)
 
 Every tool takes an optional `config` argument. Run `doctor` first to verify the host.
 

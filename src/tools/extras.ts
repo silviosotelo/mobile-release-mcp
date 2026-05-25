@@ -1,8 +1,25 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { configArg, ctx, runText } from "./common.js";
+import { shSingleQuote } from "../exec.js";
 
 export function registerExtras(server: McpServer): void {
+  server.tool(
+    "fastlane_run",
+    "Ejecuta CUALQUIER action del catálogo de fastlane (https://docs.fastlane.tools/actions/) que no tenga una tool dedicada — ej. cert, sigh, produce, increment_build_number, slack. Equivale a `fastlane run <action> key:value ...`.",
+    {
+      ...configArg,
+      action: z.string().describe("Nombre de la action fastlane, ej. 'increment_build_number'"),
+      params: z.record(z.string()).optional().describe("Parámetros key:value de la action"),
+    },
+    async (a: { config?: string; action: string; params?: Record<string, string> }) => {
+      const { host } = ctx(a);
+      const kv = Object.entries(a.params ?? {}).map(([k, v]) => `${k}:${shSingleQuote(v)}`);
+      const cmd = `fastlane run ${shSingleQuote(a.action)} ${kv.join(" ")}`.trim();
+      return runText(`fastlane run ${a.action}`, cmd, host);
+    }
+  );
+
   server.tool(
     "flutter_build_runner",
     "Corre code generation de Dart (build_runner): build / watch / clean.",

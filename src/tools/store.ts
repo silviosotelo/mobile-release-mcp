@@ -1,6 +1,6 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { run, runScript } from "../exec.js";
+import { run, runScript, shSingleQuote } from "../exec.js";
 import { ASC_RUBY, PLAY_PY } from "../host_scripts.js";
 import { configArg, ctx, errText, resultText, runText, withVars } from "./common.js";
 
@@ -91,16 +91,26 @@ export function registerStore(server: McpServer): void {
 
   server.tool(
     "beta_ios",
-    "Sube un IPA a App Store Connect / TestFlight con altool (usa la API key). El build queda disponible en TestFlight tras procesarse.",
-    { ...configArg, ipaPath: z.string().describe("Ruta al .ipa") },
-    async (a: { config?: string; ipaPath: string }) => {
+    "Sube un IPA a TestFlight con fastlane pilot (upload_to_testflight). A diferencia de altool, espera el procesado del build y lo deja listo para testers. Auth con la API key de ios.appStoreConnect.",
+    {
+      ...configArg,
+      ipaPath: z.string().describe("Ruta al .ipa en el build host"),
+      skipWaitingForProcessing: z.boolean().optional().describe("No esperar el procesado del build (default false)"),
+    },
+    async (a: { config?: string; ipaPath: string; skipWaitingForProcessing?: boolean }) => {
       const { cfg, host } = ctx(a);
       const asc = cfg.ios?.appStoreConnect;
-      if (!asc) return errText("Falta ios.appStoreConnect.");
+      if (!asc) return errText("Falta ios.appStoreConnect (keyId/issuerId/keyPath).");
+      if (!cfg.ios?.bundleId) return errText("Falta ios.bundleId.");
+      const kj = `/tmp/mr_asc_${Date.now()}_${Math.floor(Math.random() * 1e6)}.json`;
+      const skipWait = a.skipWaitingForProcessing ? "true" : "false";
       const cmd =
-        `mkdir -p ~/.appstoreconnect/private_keys && cp ${asc.keyPath} ~/.appstoreconnect/private_keys/ 2>/dev/null; ` +
-        `xcrun altool --upload-app --type ios -f ${JSON.stringify(a.ipaPath)} --apiKey ${asc.keyId} --apiIssuer ${asc.issuerId}`;
-      return runText("altool upload (TestFlight)", cmd, host, 15 * 60 * 1000);
+        `jq -n --arg k ${shSingleQuote(asc.keyId)} --arg i ${shSingleQuote(asc.issuerId)} --arg f ${shSingleQuote(asc.keyPath)} ` +
+        `'{key_id:$k,issuer_id:$i,key_filepath:$f,in_house:false}' > ${kj} && ` +
+        `fastlane run upload_to_testflight api_key_path:${kj} ipa:${shSingleQuote(a.ipaPath)} ` +
+        `app_identifier:${shSingleQuote(cfg.ios.bundleId)} skip_waiting_for_build_processing:${skipWait}; ` +
+        `rc=$?; rm -f ${kj}; exit $rc`;
+      return runText("pilot upload (TestFlight)", cmd, host, 20 * 60 * 1000);
     }
   );
 

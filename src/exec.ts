@@ -29,7 +29,7 @@ export interface ExecResult {
   command: string;
 }
 
-function shSingleQuote(s: string): string {
+export function shSingleQuote(s: string): string {
   return `'${s.replace(/'/g, `'\\''`)}'`;
 }
 

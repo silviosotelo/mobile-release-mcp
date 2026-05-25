@@ -19,6 +19,10 @@ export interface MrConfig {
     appStoreCountry?: string;
     /** Login keychain unlock for codesign over SSH (optional, sensitive). */
     keychain?: { path?: string; password?: string };
+    /** Defaults for gym/build_app (params can still override per call). */
+    scheme?: string;
+    workspace?: string;
+    xcodeProject?: string;
   };
 
   android?: {

@@ -1,6 +1,7 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
-import { configArg, ctx, runText, keychainPrefix } from "./common.js";
+import { configArg, ctx, errText, runText, keychainPrefix } from "./common.js";
+import { shSingleQuote } from "../exec.js";
 
 export function registerNativeIos(server: McpServer): void {
   server.tool(
@@ -41,6 +42,38 @@ export function registerNativeIos(server: McpServer): void {
       const { cfg, host } = ctx(a);
       const cmd = `${keychainPrefix(cfg)}xcodebuild -exportArchive -archivePath ${a.archivePath} -exportOptionsPlist ${a.exportOptionsPlist} -exportPath ${a.exportDir ?? "build/ipa"}`;
       return runText("xcodebuild -exportArchive", cmd, host);
+    }
+  );
+
+  server.tool(
+    "ios_build_app",
+    "Compila y exporta un IPA firmado con fastlane gym (build_app): maneja archive + export en un paso. scheme/workspace/project salen del config (ios.scheme/workspace/xcodeProject) y se pueden sobrescribir por argumento. Desbloquea el keychain para firmar vía SSH.",
+    {
+      ...configArg,
+      scheme: z.string().optional().describe("Default ios.scheme del config"),
+      workspace: z.string().optional().describe("Default ios.workspace del config (usar esto o project)"),
+      project: z.string().optional().describe("Default ios.xcodeProject del config"),
+      configuration: z.string().optional().describe("Default Release"),
+      exportMethod: z.enum(["app-store", "ad-hoc", "development", "enterprise"]).optional().describe("Default app-store"),
+      outputDirectory: z.string().optional().describe("Default build/ipa"),
+      outputName: z.string().optional().describe("Nombre del .ipa"),
+      clean: z.boolean().optional().describe("clean antes del build (default true)"),
+    },
+    async (a: any) => {
+      const { cfg, host } = ctx(a);
+      const scheme = a.scheme ?? cfg.ios?.scheme;
+      if (!scheme) return errText("Falta scheme (pasalo como arg o seteá ios.scheme en el config).");
+      const ws = a.workspace ?? cfg.ios?.workspace;
+      const proj = a.project ?? cfg.ios?.xcodeProject;
+      const parts = ["fastlane", "run", "build_app", `scheme:${shSingleQuote(scheme)}`];
+      if (ws) parts.push(`workspace:${shSingleQuote(ws)}`);
+      else if (proj) parts.push(`project:${shSingleQuote(proj)}`);
+      parts.push(`configuration:${shSingleQuote(a.configuration ?? "Release")}`);
+      parts.push(`export_method:${shSingleQuote(a.exportMethod ?? "app-store")}`);
+      parts.push(`output_directory:${shSingleQuote(a.outputDirectory ?? "build/ipa")}`);
+      if (a.outputName) parts.push(`output_name:${shSingleQuote(a.outputName)}`);
+      parts.push(`clean:${a.clean === false ? "false" : "true"}`);
+      return runText("gym build_app", keychainPrefix(cfg) + parts.join(" "), host, 30 * 60 * 1000);
     }
   );
 
